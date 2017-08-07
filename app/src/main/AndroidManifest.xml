@@ -32,6 +32,8 @@
 
         <service android:name=".services.MovieService"/>
         <service android:name=".services.TrailerService"/>
+        <service android:name=".services.CastService"/>
+        <service android:name=".services.CrewService"/>
     </application>
 
 </manifest>

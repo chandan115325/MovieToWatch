@@ -24,9 +24,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.chandan.android.movietowatch.adapter.CastAdapter;
+import com.chandan.android.movietowatch.adapter.CrewAdapter;
 import com.chandan.android.movietowatch.adapter.TrailerAdapter;
+import com.chandan.android.movietowatch.model.Cast;
+import com.chandan.android.movietowatch.model.Crew;
 import com.chandan.android.movietowatch.model.Movie;
 import com.chandan.android.movietowatch.model.Trailer;
+import com.chandan.android.movietowatch.services.CastService;
+import com.chandan.android.movietowatch.services.CrewService;
 import com.chandan.android.movietowatch.services.TrailerService;
 import com.chandan.android.movietowatch.utils.NetworkHelper;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
@@ -39,6 +45,7 @@ import java.util.ArrayList;
  */
 public class DetailActivity extends AppCompatActivity {
 
+
     ImageView imageView_votes, imageView_moviePoster, imageView_favorites, imageView_watchlist;
     RatingBar ratingBar;
     HorizontalScrollView horizontalScrollView_posters, horizontalScrollView_trailers,
@@ -50,14 +57,23 @@ public class DetailActivity extends AppCompatActivity {
 
     ImageLoader imageLoader = ImageLoader.getInstance();
 
+
     private static final String JSON_URL_TRAILER = null;
 
     TextView nameOfMovie, plotSynopsis, userRating, releaseDate;
     ImageView imageView;
     private RecyclerView recyclerView;
     private boolean networkOk;
+
     private TrailerAdapter adapter;
     private ArrayList<Trailer> trailerList;
+
+    private CastAdapter castAdapter;
+    private ArrayList<Cast>castArrayList;
+
+    private CrewAdapter crewAdapter;
+    private ArrayList<Crew>crewArrayList;
+
     //private FavoriteDbHelper favoriteDbHelper;
    // private Movie favorite;*/
     private final AppCompatActivity activity = DetailActivity.this;
@@ -65,16 +81,40 @@ public class DetailActivity extends AppCompatActivity {
     Movie movie;
     String thumbnail, movieName, synopsis, rating, dateOfRelease;
     int movie_id;
-
+//getting trailer arraylist
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
 
 
             trailerList = intent.getParcelableArrayListExtra(TrailerService.MY_SERVICE_PAYLOAD_TRAILER);
-            initViews(trailerList);
+            initViewsTrailer(trailerList);
         }
     };
+
+//getting Cast arraylist
+    private BroadcastReceiver castBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+
+            castArrayList = intent.getParcelableArrayListExtra(CastService.MY_SERVICE_PAYLOAD_CAST);
+            initViewsCast(castArrayList);
+        }
+    };
+
+    //getting Crew arraylist
+    private BroadcastReceiver crewBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+
+            crewArrayList = intent.getParcelableArrayListExtra(CrewService.MY_SERVICE_PAYLOAD_CREW);
+            initViewsCrew(crewArrayList);
+        }
+    };
+
+
 
 
     @Override
@@ -99,6 +139,17 @@ public class DetailActivity extends AppCompatActivity {
                 .registerReceiver(mBroadcastReceiver,
                         new IntentFilter(TrailerService.MY_SERVICE_TRAILER));
 
+        //registering the local broadcast eceiver for cast
+                LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(castBroadcastReceiver,
+                        new IntentFilter(CastService.MY_SERVICE_CAST));
+
+
+        //registering the local broadcast receiver for cast
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(crewBroadcastReceiver,
+                        new IntentFilter(CrewService.MY_SERVICE_CREW));
+
 
         Intent intentThatStartedThisActivity = getIntent();
         if (intentThatStartedThisActivity.hasExtra("movies")) {
@@ -116,7 +167,7 @@ public class DetailActivity extends AppCompatActivity {
 
             Glide.with(this)
                     .load(poster)
-                    .placeholder(R.drawable.ic_action_name)
+                    .placeholder(R.drawable.load)
                     .into(imageView);
 
             nameOfMovie.setText(movieName);
@@ -163,6 +214,11 @@ public class DetailActivity extends AppCompatActivity {
         String JSON_URL_TRAILER= " https://api.themoviedb.org/3/movie/"+movie_id +"/videos?api_key=047d097b7479b4e84c76129f2d4566ec";
         loadJSON(JSON_URL_TRAILER);
 
+        String JSON_URL_CAST= " https://api.themoviedb.org/3/movie/"+movie_id +"/credits?api_key=047d097b7479b4e84c76129f2d4566ec";
+        loadJSON_Cast(JSON_URL_CAST);
+
+        String JSON_URL_CREW= " https://api.themoviedb.org/3/movie/"+movie_id +"/credits?api_key=047d097b7479b4e84c76129f2d4566ec";
+        loadJSON_Crew(JSON_URL_CREW);
 
     }
 
@@ -193,7 +249,7 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    private void initViews(ArrayList<Trailer>trailerList) {
+    private void initViewsTrailer(ArrayList<Trailer>trailerList) {
        // trailerList = new ArrayList<>();
         adapter = new TrailerAdapter(this, trailerList);
 
@@ -202,6 +258,30 @@ public class DetailActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
+
+    }
+
+    private void initViewsCast(ArrayList<Cast>castList) {
+        // trailerList = new ArrayList<>();
+        castAdapter = new CastAdapter(this, castList );
+
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_cast);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,true);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(castAdapter);
+        //adapter.notifyDataSetChanged();
+
+    }
+
+    private void initViewsCrew(ArrayList<Crew>crewList) {
+        // trailerList = new ArrayList<>();
+        crewAdapter = new CrewAdapter(this, crewList );
+
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_crew);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext(),LinearLayoutManager.HORIZONTAL,true);
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setAdapter(crewAdapter);
+        //adapter.notifyDataSetChanged();
 
     }
 
@@ -217,13 +297,41 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-
+    // LoadJson
+    public void loadJSON_Cast(String jsonURL) {
+        networkOk = NetworkHelper.hasNetworkAccess(DetailActivity.this);
+        if (networkOk) {
+            Intent intent = new Intent(DetailActivity.this, CastService.class);
+            intent.setData(Uri.parse(jsonURL));
+            startService(intent);
+        } else {
+            Toast.makeText(DetailActivity.this, "Network not available", Toast.LENGTH_LONG).show();
+        }
+    }
+    // LoadJson
+    public void loadJSON_Crew(String jsonURL) {
+        networkOk = NetworkHelper.hasNetworkAccess(DetailActivity.this);
+        if (networkOk) {
+            Intent intent = new Intent(DetailActivity.this, CrewService.class);
+            intent.setData(Uri.parse(jsonURL));
+            startService(intent);
+        } else {
+            Toast.makeText(DetailActivity.this, "Network not available", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
     @Override
     protected void onDestroy() {
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .unregisterReceiver(mBroadcastReceiver);
+
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(castBroadcastReceiver);
+
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .unregisterReceiver(crewBroadcastReceiver);
+
         super.onDestroy();
     }
 }

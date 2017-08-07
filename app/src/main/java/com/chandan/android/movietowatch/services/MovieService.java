@@ -87,54 +87,6 @@ public class MovieService extends IntentService {
                 arrayMovieList.add(new Movie(title, voteCount,  id,  video, voteAverage,  popularity, posterPath,
                          originalTitle,  backdropPath,  overview,  releaseDate));
 
-                /*JSONObject id = movie.getJSONObject("id");
-                JSONObject id = movie.getJSONObject("id");
-                JSONObject id = movie.getJSONObject("id");
-                JSONObject id = movie.getJSONObject("id");
-                */
-               /* jsonObject = itemsArray.getJSONObject(i);
-                if (jsonObject.has("id")) {
-                    hashMap.put("id", jsonObject.getString("id"));
-                } else {
-                    hashMap.put("id", "id NA");
-                }
-                if (jsonObject.has("original_title")) {
-                    hashMap.put("original_title", jsonObject.getString("original_title"));
-                } else {
-                    hashMap.put("original_title", "Title NA");
-                }
-                if (jsonObject.has("release_date")) {
-                    hashMap.put("release_date", jsonObject.getString("release_date"));
-                } else {
-                    hashMap.put("release_date", "Date NA");
-                }
-
-                if (jsonObject.has("popularity")) {
-                    hashMap.put("popularity", jsonObject.getString("popularity"));
-                } else {
-                    hashMap.put("popularity", "Popularity NA");
-                }
-
-                if (jsonObject.has("vote_count")) {
-                    hashMap.put("vote_count", jsonObject.getString("vote_count"));
-                } else {
-                    hashMap.put("vote_count", "Vote NA");
-                }
-
-                if (jsonObject.has("vote_average")) {
-                    hashMap.put("vote_average", jsonObject.getString("vote_average"));
-                } else {
-                    hashMap.put("vote_average", "Average Vote NA");
-                }
-
-                if (jsonObject.has("poster_path")) {
-                    hashMap.put("poster_path", "http://image.tmdb.org/t/p/original" +
-                            jsonObject.getString("poster_path"));
-                } else {
-                    hashMap.put("poster_path", "Poster NA");
-                }
-               */
-               //arrayMovieList.add(hashMap);
 
             }
 

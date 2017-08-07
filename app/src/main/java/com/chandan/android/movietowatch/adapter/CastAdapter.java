@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.chandan.android.movietowatch.R;
 import com.chandan.android.movietowatch.model.Cast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by CHANDAN on 8/7/2017.
@@ -39,7 +39,16 @@ public class CastAdapter extends RecyclerView.Adapter<CastAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(final CastAdapter.MyViewHolder viewHolder, int i){
-        viewHolder.title.setText(castList.get(i).getName());
+        viewHolder.name.setText(castList.get(i).getName());
+        viewHolder.role.setText(castList.get(i).getCharacter());
+        //viewHolder.castImage.setImageResource(castList.get(i).);
+        String poster = "https://image.tmdb.org/t/p/w500" + castList.get(i).getProfilePath();
+
+        Glide.with(mContext)
+                .load(poster)
+                .placeholder(R.drawable.load)
+                .into(viewHolder.castImage);
+
 
     }
 
@@ -51,30 +60,17 @@ public class CastAdapter extends RecyclerView.Adapter<CastAdapter.MyViewHolder> 
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
-        public TextView title;
-        public ImageView thumbnail;
+        public TextView name,role;
+        public ImageView castImage;
 
         public MyViewHolder(View view){
             super(view);
-            title = (TextView) view.findViewById(R.id.title);
-            thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+            name = (TextView) view.findViewById(R.id.textView_name);
+            role = (TextView) view.findViewById(R.id.textView_role);
+            castImage = (ImageView) view.findViewById(R.id.imageView_cast_crew);
 
-           /* view.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v){
-                    int pos = getAdapterPosition();
-                    if (pos != RecyclerView.NO_POSITION){
-                        Trailer clickedDataItem = trailerList.get(pos);
-                        String videoId = trailerList.get(pos).getKey();
-                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v="+videoId));
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra("VIDEO_ID", videoId);
-                        mContext.startActivity(intent);
 
-                        Toast.makeText(v.getContext(), "You clicked " + clickedDataItem.getName(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });*/
+
 
         }
     }

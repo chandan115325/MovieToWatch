@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.chandan.android.movietowatch.model.Trailer;
+import com.chandan.android.movietowatch.model.Crew;
 import com.chandan.android.movietowatch.utils.HttpHelper;
 
 import org.json.JSONArray;
@@ -26,26 +26,23 @@ import java.util.HashMap;
  * Created by CHANDAN on 8/3/2017.
  */
 
-public class TrailerService extends IntentService {
+public class CrewService extends IntentService {
 
-    private String id;
-    private String iso6391;
-    private String iso31661;
-    private String key;
+    private String profilePath;
     private String name;
-    private String site;
+    private String job;
     private int size;
     private String type;
 
-    private ArrayList<Trailer> arrayTrailerList = new ArrayList<>();
+    private ArrayList<Crew> crewArrayList = new ArrayList<>();
 
-    public static final String TAG = "MyService";
-    public static final String MY_SERVICE_TRAILER = "myServiceTrailer";
-    public static final String MY_SERVICE_PAYLOAD_TRAILER = "myServicePayloadTrailer";
+    public static final String TAG = "MyServiceCrew";
+    public static final String MY_SERVICE_CREW = "myServiceCrew";
+    public static final String MY_SERVICE_PAYLOAD_CREW = "myServicePayloadCrew";
 
 
-    public TrailerService() {
-        super("MyServicesTrailer");
+    public CrewService() {
+        super("MyServicesCrew");
     }
 
     @Override
@@ -64,18 +61,18 @@ public class TrailerService extends IntentService {
         try {
             JSONObject jsonObject = new JSONObject(response);
             Log.i(TAG,"response:" +response);
-            JSONArray itemsArray = jsonObject.getJSONArray("results");
+            JSONArray itemsArray = jsonObject.getJSONArray("crew");
 
             HashMap<String, String> hashMap = new HashMap<>();
             //processing JSON data
             for (int i = 0; i < itemsArray.length(); i++) {
-                JSONObject trailer = itemsArray.getJSONObject(i);
+                JSONObject cast = itemsArray.getJSONObject(i);
 
-                key = trailer.getString("key");
-                name = trailer.getString("name");
+                profilePath = cast.getString("profile_path");
+                name = cast.getString("name");
+                job = cast.getString("job");
 
-
-                arrayTrailerList.add(new Trailer(key, name));
+                crewArrayList.add(new Crew( name, job, profilePath));
 
 
             }
@@ -85,8 +82,8 @@ public class TrailerService extends IntentService {
         }
 
 
-        Intent messageIntent = new Intent(MY_SERVICE_TRAILER);
-        messageIntent.putExtra(MY_SERVICE_PAYLOAD_TRAILER, arrayTrailerList);
+        Intent messageIntent = new Intent(MY_SERVICE_CREW);
+        messageIntent.putExtra(MY_SERVICE_PAYLOAD_CREW, crewArrayList);
 
 
         LocalBroadcastManager manager =
