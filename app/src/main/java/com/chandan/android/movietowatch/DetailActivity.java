@@ -16,9 +16,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.widget.HorizontalScrollView;
+import android.util.Log;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,8 +35,8 @@ import com.chandan.android.movietowatch.services.CrewService;
 import com.chandan.android.movietowatch.services.TrailerService;
 import com.chandan.android.movietowatch.utils.NetworkHelper;
 import com.github.ivbaranov.mfb.MaterialFavoriteButton;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +44,7 @@ import java.util.ArrayList;
  */
 public class DetailActivity extends AppCompatActivity {
 
+/*
 
     ImageView imageView_votes, imageView_moviePoster, imageView_favorites, imageView_watchlist;
     RatingBar ratingBar;
@@ -57,7 +57,9 @@ public class DetailActivity extends AppCompatActivity {
 
     ImageLoader imageLoader = ImageLoader.getInstance();
 
-
+*/
+    private Double voteAverage, updatedVoteAverage;
+    private int voteCount, updatedVoteCount;
     private static final String JSON_URL_TRAILER = null;
 
     TextView nameOfMovie, plotSynopsis, userRating, releaseDate;
@@ -74,6 +76,7 @@ public class DetailActivity extends AppCompatActivity {
     private CrewAdapter crewAdapter;
     private ArrayList<Crew>crewArrayList;
 
+    private RatingBar ratingBar;
     //private FavoriteDbHelper favoriteDbHelper;
    // private Movie favorite;*/
     private final AppCompatActivity activity = DetailActivity.this;
@@ -128,6 +131,7 @@ public class DetailActivity extends AppCompatActivity {
 
         initCollapsingToolbar();
 
+        ratingBar = (RatingBar)findViewById(R.id.ratingBar);
         imageView = (ImageView) findViewById(R.id.thumbnail_image_header);
         nameOfMovie = (TextView) findViewById(R.id.title);
         plotSynopsis = (TextView) findViewById(R.id.plotsynopsis);
@@ -160,8 +164,29 @@ public class DetailActivity extends AppCompatActivity {
             movieName = movie.getOriginalTitle();
             synopsis = movie.getOverview();
             rating = Double.toString(movie.getVoteAverage());
+            voteCount = movie.getVoteCount();
+            voteAverage = movie.getVoteAverage();
             dateOfRelease = movie.getReleaseDate();
             movie_id = movie.getId();
+            ratingBar.setRating(Float.parseFloat(rating) / 2);
+            ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                @Override
+                public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+                    updatedVoteAverage = v + (voteAverage)/2;
+                    updatedVoteCount = (movie.getVoteCount())+1;
+                    BigDecimal result_vote_avg;
+                    result_vote_avg = round(updatedVoteAverage,1);
+                    Log.e("Det act Rating passed ", String.valueOf(v));
+                    get_Sessionid get_sessionid = new get_Sessionid(movie_id, result_vote_avg, updatedVoteCount);
+                    get_sessionid.execute();
+
+                    userRating.setText( result_vote_avg + "/10 "+"("+updatedVoteCount+")");
+                   // textView_vote_count.setText(String.valueOf(new_vote_count));
+                   // textView_vote_count.append(users);
+                }
+            });
+            //need to change vote and user count in db
+
 
             String poster = "https://image.tmdb.org/t/p/w500" + thumbnail;
 
@@ -172,7 +197,8 @@ public class DetailActivity extends AppCompatActivity {
 
             nameOfMovie.setText(movieName);
             plotSynopsis.setText(synopsis);
-            userRating.setText(rating);
+            //userRating.setText(rating);
+            userRating.setText(voteAverage +"/10" + "(" +voteCount +")");
             releaseDate.setText(dateOfRelease);
 
         } else {
@@ -220,6 +246,11 @@ public class DetailActivity extends AppCompatActivity {
         String JSON_URL_CREW= " https://api.themoviedb.org/3/movie/"+movie_id +"/credits?api_key=047d097b7479b4e84c76129f2d4566ec";
         loadJSON_Crew(JSON_URL_CREW);
 
+    }
+    public static BigDecimal round(double d, int decimalPlace) {
+        BigDecimal bd = new BigDecimal(Double.toString(d));
+        bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+        return bd;
     }
 
     private void initCollapsingToolbar() {

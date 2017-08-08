@@ -6,12 +6,12 @@ import android.util.Log;
 import static android.R.attr.id;
 
 public class POST_Rating extends AsyncTask<Object, Object, String> {
-    String movie_id;
+    int movie_id;
     Float mrating;
     String Guest_id;
     int user_Count;
 
-    public POST_Rating(String movie_id, float rating, String guest_id, int user_count) {
+    public POST_Rating(int movie_id, float rating, String guest_id, int user_count) {
         this.movie_id = movie_id;
         this.mrating = rating;
         this.Guest_id = guest_id;
